@@ -1,12 +1,13 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
+export const API_BASE = import.meta.env.VITE_API_URL || 'https://elixra-mernstack-2.onrender.com/api'
 
-async function request(path, options = {}) {
+export async function apiFetch(path, options = {}) {
+  const isFormData = options.body instanceof FormData
   const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers || {}),
     },
-    ...options,
   })
 
   const payload = await response.json().catch(() => ({}))
@@ -16,6 +17,10 @@ async function request(path, options = {}) {
   }
 
   return payload
+}
+
+async function request(path, options = {}) {
+  return apiFetch(path, options)
 }
 
 export async function getProducts() {

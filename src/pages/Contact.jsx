@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Send, MapPin, Mail, Phone } from 'lucide-react'
 import TextReveal from '../components/TextReveal'
 import ScrollReveal from '../components/ScrollReveal'
+import { apiFetch } from '../api'
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
@@ -13,14 +14,10 @@ export default function Contact() {
     setError('')
 
     try {
-      const response = await fetch('/api/contact', {
+      await apiFetch('/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       })
-
-      const data = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(data.message || 'Could not send message')
 
       setSubmitted(true)
       setFormData({ name: '', email: '', message: '' })

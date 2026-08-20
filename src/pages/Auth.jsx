@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { apiFetch } from '../api'
 
 export default function Auth() {
   const location = useLocation()
@@ -22,22 +23,15 @@ export default function Auth() {
     setMessage('')
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register'
+      const endpoint = isLogin ? '/auth/login' : '/auth/register'
       const payload = isLogin
         ? { email: form.email, password: form.password }
         : { name: form.name, email: form.email, password: form.password }
 
-      const response = await fetch(endpoint, {
+      const data = await apiFetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
-
-      const data = await response.json().catch(() => ({}))
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Authentication failed')
-      }
 
       if (data.data?.token) {
         localStorage.setItem('token', data.data.token)

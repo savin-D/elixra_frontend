@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatINR } from '../utils/pricing'
+import { apiFetch } from '../api'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -9,9 +10,7 @@ export default function Orders() {
     const load = async () => {
       try {
         const token = localStorage.getItem('token')
-        const res = await fetch('/api/orders/my', { headers: { Authorization: `Bearer ${token}` } })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data.message || 'Could not load orders')
+        const data = await apiFetch('/orders/my', { headers: { Authorization: `Bearer ${token}` } })
         setOrders(data.data || [])
       } catch (err) { setError(err.message) }
     }

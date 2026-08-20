@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ScrollReveal from '../components/ScrollReveal'
 import TextReveal from '../components/TextReveal'
-import { getProducts } from '../api'
+import { getProducts, apiFetch } from '../api'
 import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 const fallbackCategories = ['All', 'Outerwear', 'Tops', 'Bottoms', 'Accessories']
@@ -17,7 +17,7 @@ export default function Shop() {
       try {
         const [productsData, categoriesRes] = await Promise.all([
           getProducts(),
-          fetch('/api/categories').then((res) => res.json().catch(() => ({})))
+          apiFetch('/categories')
         ])
 
         setProducts(productsData)

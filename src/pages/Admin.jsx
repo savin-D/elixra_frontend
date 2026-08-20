@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { formatINR } from '../utils/pricing'
+import { API_BASE } from '../api'
 
 const emptyForm = {
   productId: '',
@@ -38,10 +39,10 @@ export default function Admin() {
   const loadData = async () => {
     try {
       const [dashboardRes, productsRes, messagesRes, categoriesRes] = await Promise.all([
-        fetch('/api/admin/dashboard', { headers }),
-        fetch('/api/products', { headers }),
-        fetch('/api/contact', { headers }),
-        fetch('/api/categories', { headers }),
+        fetch(`${API_BASE}/admin/dashboard`, { headers }),
+        fetch(`${API_BASE}/products`, { headers }),
+        fetch(`${API_BASE}/contact`, { headers }),
+        fetch(`${API_BASE}/categories`, { headers }),
       ])
 
       const dashboardData = await dashboardRes.json().catch(() => ({}))
@@ -74,7 +75,7 @@ export default function Admin() {
 
   const loadBanners = async () => {
     try {
-      const res = await fetch('/api/admin/banners', { headers })
+      const res = await fetch(`${API_BASE}/admin/banners`, { headers })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.message || 'Could not load banners')
       setBanners(data.data || [])
@@ -85,7 +86,7 @@ export default function Admin() {
 
   const loadOrders = async () => {
     try {
-      const res = await fetch('/api/admin/orders', { headers })
+      const res = await fetch(`${API_BASE}/admin/orders`, { headers })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data.message || 'Could not load orders')
       setOrders(data.data || [])
@@ -121,7 +122,7 @@ export default function Admin() {
       if (form.sizes) formData.append('sizes', form.sizes)
       Array.from(images).forEach((image) => formData.append('images', image))
 
-      const response = await fetch('/api/admin/products', {
+      const response = await fetch(`${API_BASE}/admin/products`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -142,7 +143,7 @@ export default function Admin() {
     if (!newCategory.trim()) return
 
     try {
-      const response = await fetch('/api/categories', {
+      const response = await fetch(`${API_BASE}/categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: newCategory }),
@@ -162,7 +163,7 @@ export default function Admin() {
 
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+      const response = await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status }),
@@ -178,7 +179,7 @@ export default function Admin() {
 
   const handleDeleteOrder = async (orderId) => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`${API_BASE}/admin/orders/${orderId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -193,7 +194,7 @@ export default function Admin() {
 
   const handleUpdate = async (productId, update) => {
     try {
-      const response = await fetch(`/api/admin/products/${productId}`, {
+      const response = await fetch(`${API_BASE}/admin/products/${productId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(update),
@@ -209,7 +210,7 @@ export default function Admin() {
 
   const handleDelete = async (productId) => {
     try {
-      const response = await fetch(`/api/admin/products/${productId}`, {
+      const response = await fetch(`${API_BASE}/admin/products/${productId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -280,7 +281,7 @@ export default function Admin() {
                       <button
                         type="button"
                         onClick={async () => {
-                          const categoryData = (await fetch('/api/categories', { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json().catch(() => ({}))))
+                          const categoryData = (await fetch(`${API_BASE}/categories`, { headers: { Authorization: `Bearer ${token}` } }).then((res) => res.json().catch(() => ({}))))
                           const match = (categoryData.data || []).find((item) => item.name === category)
                           if (!match) {
                             setError('This category was not found in the category list.')
@@ -288,7 +289,7 @@ export default function Admin() {
                           }
 
                           try {
-                            const response = await fetch(`/api/categories/${match._id}`, {
+                            const response = await fetch(`${API_BASE}/categories/${match._id}`, {
                               method: 'DELETE',
                               headers: { Authorization: `Bearer ${token}` },
                             })
@@ -382,7 +383,7 @@ export default function Admin() {
               if (bannerImage) formData.append('image', bannerImage)
               formData.append('active', String(bannerActive))
 
-              const res = await fetch('/api/admin/banners', { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData })
+              const res = await fetch(`${API_BASE}/admin/banners`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData })
               const data = await res.json().catch(() => ({}))
               if (!res.ok) throw new Error(data.message || 'Could not create banner')
               setMessage('Banner created')
@@ -417,8 +418,8 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={async () => { try { const res = await fetch(`/api/admin/banners/${b._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ active: !b.active }) }); const data = await res.json().catch(()=>({})); if (!res.ok) throw new Error(data.message||''); setMessage('Banner updated'); loadBanners() } catch (err) { setError(err.message) } }} className="px-3 py-2 border text-sm">{b.active ? 'Deactivate' : 'Activate'}</button>
-                  <button onClick={async () => { try { const res = await fetch(`/api/admin/banners/${b._id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); const data = await res.json().catch(()=>({})); if (!res.ok) throw new Error(data.message||''); setMessage('Banner deleted'); loadBanners() } catch (err) { setError(err.message) } }} className="px-3 py-2 border text-sm text-red-600">Delete</button>
+                  <button onClick={async () => { try { const res = await fetch(`${API_BASE}/admin/banners/${b._id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ active: !b.active }) }); const data = await res.json().catch(()=>({})); if (!res.ok) throw new Error(data.message||''); setMessage('Banner updated'); loadBanners() } catch (err) { setError(err.message) } }} className="px-3 py-2 border text-sm">{b.active ? 'Deactivate' : 'Activate'}</button>
+                  <button onClick={async () => { try { const res = await fetch(`${API_BASE}/admin/banners/${b._id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } }); const data = await res.json().catch(()=>({})); if (!res.ok) throw new Error(data.message||''); setMessage('Banner deleted'); loadBanners() } catch (err) { setError(err.message) } }} className="px-3 py-2 border text-sm text-red-600">Delete</button>
                 </div>
               </div>
             ))}

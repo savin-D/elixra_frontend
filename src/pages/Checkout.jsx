@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart'
 import { formatINR, getDiscountedPrice } from '../utils/pricing'
+import { apiFetch } from '../api'
 
 export default function Checkout() {
   const { cart } = useCart()
@@ -36,13 +37,11 @@ export default function Checkout() {
     }
 
     try {
-      const res = await fetch('/api/orders', {
+      const data = await apiFetch('/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ items: cart.map(i => ({ product: i.id, quantity: i.quantity, size: i.size })), shippingAddress: `${address.name} | ${address.phone} | ${address.address}, ${address.city}, ${address.state} - ${address.zip}` })
       })
-      const data = await res.json().catch(()=>({}))
-      if (!res.ok) throw new Error(data.message || 'Order failed')
       // clear cart
       localStorage.removeItem('cart')
       navigate('/orders')
@@ -68,7 +67,7 @@ export default function Checkout() {
 
     const placeOrder = async () => {
       try {
-        const res = await fetch('/api/orders', {
+        const data = await apiFetch('/orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
@@ -76,8 +75,6 @@ export default function Checkout() {
             shippingAddress: `${address.name} | ${address.phone} | ${address.address}, ${address.city}, ${address.state} - ${address.zip}`,
           }),
         })
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(data.message || 'Order failed')
 
         const itemsSummary = cart.map((item) => {
           const productId = item.productId || item.id || 'N/A'
