@@ -10,6 +10,7 @@ import BannerSlider from '../components/BannerSlider'
 import { getProducts } from '../api'
 import { getBanners } from '../api'
 import heroImage from '../hero.jpeg'
+import footerImage from '../footer.png'
 import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -218,7 +219,7 @@ export default function Home() {
 
       <section className="relative py-24 md:py-48 overflow-hidden">
         <img
-          src="/src/footer.png"
+          src={footerImage}
           alt="CTA"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
