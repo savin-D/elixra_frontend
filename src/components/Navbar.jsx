@@ -38,6 +38,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('userName')
+    localStorage.removeItem('userRole')
     window.dispatchEvent(new Event('auth:update'))
     navigate('/')
   }

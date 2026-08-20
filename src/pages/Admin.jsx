@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { formatINR } from '../utils/pricing'
 
 const emptyForm = {
+  productId: '',
   name: '',
   description: '',
   category: '',
@@ -61,7 +63,6 @@ export default function Admin() {
       setProducts(productsData.data || [])
       setMessages(messagesData.data || [])
       setCategories(Array.from(new Set(categoryList)).sort((a, b) => a.localeCompare(b)))
-      setOrders([])
     } catch (err) {
       setError(err.message)
     }
@@ -109,6 +110,7 @@ export default function Admin() {
 
     try {
       const formData = new FormData()
+      formData.append('productId', form.productId)
       formData.append('name', form.name)
       formData.append('description', form.description)
       formData.append('category', form.category)
@@ -174,6 +176,21 @@ export default function Admin() {
     }
   }
 
+  const handleDeleteOrder = async (orderId) => {
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.message || 'Could not delete order')
+      setOrders((prev) => prev.filter((order) => order._id !== orderId))
+      setMessage('Order deleted successfully')
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
   const handleUpdate = async (productId, update) => {
     try {
       const response = await fetch(`/api/admin/products/${productId}`, {
@@ -227,7 +244,7 @@ export default function Admin() {
               ['Total Orders', stats.totalOrders],
               ['Pending Orders', stats.pendingOrders],
               ['Delivered Orders', stats.deliveredOrders],
-              ['Total Revenue', `$${stats.totalRevenue}`],
+              ['Total Revenue', formatINR(stats.totalRevenue)],
             ].map(([label, value]) => (
               <div key={label} className="border rounded-xl p-6 shadow-sm">
                 <p className="text-sm text-gray-500">{label}</p>
@@ -241,6 +258,7 @@ export default function Admin() {
           <div className="border rounded-2xl p-6 shadow-sm">
             <h2 className="text-xl font-semibold mb-4">Add New Product</h2>
             <form onSubmit={handleCreate} className="space-y-4">
+              <input name="productId" value={form.productId} onChange={handleChange} placeholder="Product ID / SKU" className="w-full border px-4 py-3" />
               <input name="name" value={form.name} onChange={handleChange} placeholder="Product name" className="w-full border px-4 py-3" />
               <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full border px-4 py-3" />
               <div>
@@ -321,6 +339,7 @@ export default function Admin() {
                     <div>
                       <h3 className="font-semibold">{product.name}</h3>
                       <p className="text-sm text-gray-500">{product.category}</p>
+                      {product.productId && <p className="text-xs text-gray-500 mt-1">Product ID: {product.productId}</p>}
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => handleUpdate(product._id, { price: Number(product.price) + 10 })} className="text-xs border px-3 py-2">+10 Price</button>
@@ -423,18 +442,24 @@ export default function Admin() {
                         {customer && <p className="text-sm text-gray-600">{customer.name} • {customer.email}</p>}
                       </div>
                       <div className="text-left md:text-right">
-                        <p className="font-medium">${Number(order.totalAmount || 0).toFixed(2)}</p>
-                        <select
-                          value={order.status}
-                          onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
-                          className="mt-2 border px-2 py-1 text-sm"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
+                        <p className="font-medium">{formatINR(Number(order.totalAmount || 0))}</p>
+                        <div className="mt-2 flex flex-wrap gap-2 md:justify-end">
+                          {order.status !== 'Delivered' && (
+                            <button
+                              onClick={() => handleUpdateOrderStatus(order._id, 'Delivered')}
+                              className="border border-green-600 px-3 py-1 text-sm text-green-700 hover:bg-green-50"
+                            >
+                              Delivered
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteOrder(order._id)}
+                            className="border border-red-600 px-3 py-1 text-sm text-red-700 hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        <p className="mt-1 text-sm text-gray-500">Status: {order.status}</p>
                       </div>
                     </div>
 
@@ -445,7 +470,7 @@ export default function Admin() {
                           <div key={`${order._id}-${item.product || item.name}-${item.size || 'default'}`} className="border rounded-lg p-3">
                             <p className="font-medium">{item.name}</p>
                             <p className="text-sm text-gray-500">Size: {item.size || '—'} | Qty: {item.quantity}</p>
-                            <p className="text-sm text-gray-500">Price: ${Number(item.price || 0).toFixed(2)}</p>
+                            <p className="text-sm text-gray-500">Price: {formatINR(Number(item.price || 0))}</p>
                           </div>
                         ))}
                       </div>

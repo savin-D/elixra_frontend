@@ -6,11 +6,28 @@ import ScrollReveal from '../components/ScrollReveal'
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' })
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
+    setError('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.message || 'Could not send message')
+
+      setSubmitted(true)
+      setFormData({ name: '', email: '', message: '' })
+      setTimeout(() => setSubmitted(false), 3000)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -56,6 +73,7 @@ export default function Contact() {
                   placeholder="How can we help?"
                 />
               </div>
+              {error && <p className="text-red-600 text-sm">{error}</p>}
               <button
                 type="submit"
                 className={`btn-primary inline-flex items-center gap-2 ${submitted ? 'bg-green-600' : ''}`}
@@ -76,9 +94,9 @@ export default function Contact() {
 
             <div className="space-y-8">
               {[
-                { icon: MapPin, title: 'Visit Us', lines: ['123 Future Street', 'New York, NY 10001'] },
-                { icon: Mail, title: 'Email', lines: ['hello@elixra.com', 'support@elixra.com'] },
-                { icon: Phone, title: 'Phone', lines: ['+1 (555) 123-4567', 'Mon-Fri 9am-6pm EST'] },
+                { icon: MapPin, title: 'Visit Us', lines: ['Sudemgaru court road Belthangady 57414', 'Karnataka, India'] },
+                { icon: Mail, title: 'Email', lines: ['elixrainfo@gmail.com'] },
+                { icon: Phone, title: 'Phone', lines: ['+91 8660707153'] },
               ].map((item, i) => (
                 <ScrollReveal key={i} delay={0.3 + i * 0.1}>
                   <div className="flex items-start gap-4">

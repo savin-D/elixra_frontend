@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { formatINR } from '../utils/pricing'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -35,7 +36,7 @@ export default function Orders() {
                     <div className="text-sm text-gray-500">{new Date(o.createdAt).toLocaleString()}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-medium">${o.totalAmount.toFixed(2)}</div>
+                    <div className="font-medium">{formatINR(o.totalAmount)}</div>
                     <div className="text-sm text-gray-500">{o.status}</div>
                   </div>
                 </div>

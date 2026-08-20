@@ -1,6 +1,7 @@
 import { X, Plus, Minus, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../hooks/useCart'
+import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 export default function CartDrawer() {
   const { cart, isOpen, setIsOpen, updateQuantity, removeFromCart, cartTotal } = useCart()
@@ -43,7 +44,12 @@ export default function CartDrawer() {
                     <img src={item.image} alt={item.name} className="w-24 h-28 object-cover bg-elira-light" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm">{item.name}</h3>
-                      <p className="text-elira-gray text-sm mt-1">${item.price}</p>
+                      <div className="mt-1 flex items-center gap-2">
+                        {Number(item.discount || 0) > 0 && (
+                          <span className="text-elira-gray text-sm line-through">{formatINR(item.price)}</span>
+                        )}
+                        <p className="text-elira-black text-sm font-medium">{formatINR(getDiscountedPrice(item))}</p>
+                      </div>
                       {item.size && <p className="text-sm mt-1">Size: {item.size}</p>}
                       <div className="flex items-center gap-3 mt-3">
                         <button
@@ -78,7 +84,7 @@ export default function CartDrawer() {
             <div className="p-6 border-t border-elira-light space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-elira-gray">Subtotal</span>
-                <span className="text-xl font-display font-medium">${cartTotal.toFixed(2)}</span>
+                <span className="text-xl font-display font-medium">{formatINR(cartTotal)}</span>
               </div>
               <button onClick={() => {
                 setIsOpen(false)

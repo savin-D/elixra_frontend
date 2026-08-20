@@ -9,6 +9,8 @@ import Marquee from '../components/Marquee'
 import BannerSlider from '../components/BannerSlider'
 import { getProducts } from '../api'
 import { getBanners } from '../api'
+import heroImage from '../hero.jpeg'
+import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -105,7 +107,7 @@ export default function Home() {
         <div className="absolute inset-0 z-0">
           <img
             ref={imageRef}
-            src="src\hero.jpeg"
+            src={heroImage}
             alt="Hero"
             className="w-full h-[120%] object-cover opacity-90 transform-gpu will-change-transform"
           />
@@ -178,7 +180,12 @@ export default function Home() {
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                 </div>
                 <h3 className="font-medium text-sm tracking-wide">{product.name}</h3>
-                <p className="text-elira-gray text-sm mt-1">${product.price}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  {product.discount > 0 && (
+                    <span className="text-elira-gray text-sm line-through">{formatINR(product.price)}</span>
+                  )}
+                  <p className="text-elira-black text-sm font-medium">{formatINR(getDiscountedPrice(product))}</p>
+                </div>
               </Link>
             </ScrollReveal>
           ))}
@@ -209,11 +216,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative py-32 md:py-48 overflow-hidden">
+      <section className="relative py-24 md:py-48 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&h=800&fit=crop"
+          src="/src/footer.png"
           alt="CTA"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 section-padding text-center text-white">

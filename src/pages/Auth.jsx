@@ -47,6 +47,9 @@ export default function Auth() {
         localStorage.setItem('userName', data.data.user.name)
       }
 
+      const role = data.data?.user?.role || data.data?.role || 'user'
+      localStorage.setItem('userRole', role)
+
       window.dispatchEvent(new Event('auth:update'))
       setMessage(isLogin ? 'Welcome back.' : 'Account created successfully.')
       navigate('/')

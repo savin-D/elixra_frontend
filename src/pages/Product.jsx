@@ -4,6 +4,7 @@ import { ShoppingBag, Check, ArrowLeft, ArrowRight, Minus, Plus } from 'lucide-r
 import { useCart } from '../hooks/useCart'
 import ScrollReveal from '../components/ScrollReveal'
 import { getProductById, getProducts } from '../api'
+import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 export default function Product() {
   const { id } = useParams()
@@ -48,6 +49,9 @@ export default function Product() {
       </div>
     )
   }
+
+  const currentPrice = getDiscountedPrice(product)
+  const originalPrice = Number(product.price || 0)
 
   const handleAddToCart = () => {
     setSizeError('')
@@ -162,8 +166,19 @@ export default function Product() {
           <div className="flex flex-col justify-center">
             <ScrollReveal delay={0.1}>
               <p className="text-sm text-elira-gray uppercase tracking-wider mb-2">{product.category}</p>
+              {product.productId && (
+                <p className="text-xs uppercase tracking-[0.2em] text-elira-gray mb-2">Product ID: {product.productId}</p>
+              )}
               <h1 className="heading-lg mb-4">{product.name}</h1>
-              <p className="text-2xl font-display font-light mb-8">${product.price}</p>
+              <div className="mb-8 flex items-center gap-3">
+                {product.discount > 0 && (
+                  <span className="text-lg text-elira-gray line-through">{formatINR(originalPrice)}</span>
+                )}
+                <p className="text-2xl font-display font-light">{formatINR(currentPrice)}</p>
+              </div>
+              {product.discount > 0 && (
+                <p className="mb-4 text-sm font-medium uppercase tracking-wide text-green-600">Save {product.discount}%</p>
+              )}
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
@@ -266,7 +281,12 @@ export default function Product() {
                       />
                     </div>
                     <h3 className="font-medium text-sm">{p.name}</h3>
-                    <p className="text-elira-gray text-sm mt-1">${p.price}</p>
+                    <div className="mt-1 flex items-center gap-2">
+                      {Number(p.discount || 0) > 0 && (
+                        <span className="text-elira-gray text-sm line-through">{formatINR(p.price)}</span>
+                      )}
+                      <p className="text-elira-black text-sm font-medium">{formatINR(getDiscountedPrice(p))}</p>
+                    </div>
                   </Link>
                 </ScrollReveal>
               ))}

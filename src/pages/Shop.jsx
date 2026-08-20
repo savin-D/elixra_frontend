@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import ScrollReveal from '../components/ScrollReveal'
 import TextReveal from '../components/TextReveal'
 import { getProducts } from '../api'
+import { formatINR, getDiscountedPrice } from '../utils/pricing'
 
 const fallbackCategories = ['All', 'Outerwear', 'Tops', 'Bottoms', 'Accessories']
 
@@ -81,7 +82,12 @@ export default function Shop() {
                   </div>
                 </div>
                 <h3 className="font-medium text-sm tracking-wide">{product.name}</h3>
-                <p className="text-elira-gray text-sm mt-1">${product.price}</p>
+                <div className="mt-1 flex items-center gap-2">
+                  {product.discount > 0 && (
+                    <span className="text-elira-gray text-sm line-through">{formatINR(product.price)}</span>
+                  )}
+                  <p className="text-elira-black text-sm font-medium">{formatINR(getDiscountedPrice(product))}</p>
+                </div>
               </Link>
             </ScrollReveal>
           ))}
