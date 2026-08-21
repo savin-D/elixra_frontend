@@ -1,15 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Instagram, Twitter, Youtube, ArrowUpRight } from 'lucide-react'
+import { Instagram, ArrowUpRight } from 'lucide-react'
 
 
 export default function Footer() {
   return (
     <footer className="bg-elira-black text-elira-white">
       <div className="section-padding py-6 md:py-8">
-        <div className="mb-8 overflow-hidden rounded-2xl border border-white/10">
-          
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 py-8">
           {/* Brand */}
           <div className="lg:col-span-1">
