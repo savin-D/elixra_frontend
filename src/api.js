@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_API_URL || 'https://elixra-mernstack-2.onrender.com/api'
+export const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 export async function apiFetch(path, options = {}) {
   const isFormData = options.body instanceof FormData

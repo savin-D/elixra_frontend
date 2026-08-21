@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://elixra-mernstack-2.onrender.com',
+        target: 'https://elixra-backend.onrender.com',
         changeOrigin: true,
       },
     },
